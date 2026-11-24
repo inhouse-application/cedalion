@@ -41,7 +41,7 @@ param(
 
 # The release this installer belongs to, and installs. install/test_install.py keeps it equal to the
 # version in zotero-plugin/addon/manifest.json, which the release workflow checks against the tag.
-$CedalionRelease = 'v0.1.0'
+$CedalionRelease = 'v0.1.1'
 
 # The user's folder from the environment, as install.sh uses $HOME (and Claude Code finds its skills).
 $CedalionHome = if ($env:USERPROFILE) { $env:USERPROFILE } else { $HOME }

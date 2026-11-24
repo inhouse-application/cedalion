@@ -214,8 +214,9 @@ class Box:
             "CEDALION_INSTALL_REPO": self.repo, "CEDALION_INSTALL_SCRAPBOOK_REPO": self.book_repo,
             "CEDALION_TEST_LOG": str(self.log), "GIT_TERMINAL_PROMPT": "0",
             "PATH": str(stub) + os.pathsep + os.environ["PATH"],
-            # pwsh on macOS and Linux keeps its own files under these; they are not the installer's.
+            # pwsh/powershell keep their own caches under these; they are not the installer's.
             **{f"XDG_{d}_HOME": str(stub / d.lower()) for d in ("DATA", "CACHE", "CONFIG")},
+            **({"LOCALAPPDATA": str(stub / "localappdata"), "APPDATA": str(stub / "appdata")} if WINDOWS else {}),
         }
 
     def run(self, shell: str, scrapbook: bool = False, unregister: bool = False, piped: bool = False,
@@ -240,7 +241,10 @@ class Box:
 
     def snap(self) -> dict[str, tuple]:
         s = snapshot(self.root)
-        return {k: v for k, v in s.items() if not k.startswith("stub/")}
+        return {
+            k: v for k, v in s.items()
+            if not k.startswith("stub/") and k != "home/AppData" and not k.startswith("home/AppData/")
+        }
 
     def rel(self, path: Path) -> str:
         return path.relative_to(self.root).as_posix()
@@ -311,8 +315,17 @@ def same_name_branch(box: Box) -> None:
     git("branch", RELEASE, box.commits["after"], cwd=Path(box.repo))
 
 
+def rmtree(path: Path | str) -> None:
+    """Remove a directory tree including read-only Git object files on Windows."""
+    def onexc(func, p, _exc):
+        os.chmod(p, 0o700)
+        func(p)
+
+    shutil.rmtree(path, onexc=onexc)
+
+
 def without_skill(box: Box) -> None:
-    shutil.rmtree(box.repo)
+    rmtree(box.repo)
     make_cedalion(Path(box.repo), skill=False)
 
 
@@ -727,16 +740,20 @@ class UpgradeAndSafety(unittest.TestCase):
                     # Downgrade the vault to a genuine v2 vault: strip `_archived: true` from the card and write
                     # a v2 manifest matching the stripped card bytes (as pre-one-way Cedalion v2 produced).
                     note_path = vault_dir / "p1-fig-1.md"
-                    base_without_archived = re.sub(r"^_archived: true\n", "", note_path.read_text(), flags=re.M)
+                    base_without_archived = re.sub(
+                        r"^_archived: true\n", "", note_path.read_text(encoding="utf-8").replace("\r\n", "\n"), flags=re.M
+                    )
                     end = base_without_archived.find("\n---\n", 3)
-                    note_path.write_text(base_without_archived[:end + 1] + "_width: 300\n" + base_without_archived[end + 1:])
-                    v2_manifest = json.loads((vault_dir / ".cedalion-cards").read_text())
+                    note_path.write_bytes(
+                        (base_without_archived[:end + 1] + "_width: 300\n" + base_without_archived[end + 1:]).encode("utf-8")
+                    )
+                    v2_manifest = json.loads((vault_dir / ".cedalion-cards").read_text(encoding="utf-8"))
                     v2_manifest["version"] = 2
                     v2_manifest.pop("vault_id", None)
                     v2_manifest.pop("agreed", None)
-                    h_v2 = hashlib.sha256(base_without_archived.encode()).hexdigest()
+                    h_v2 = hashlib.sha256(base_without_archived.encode("utf-8")).hexdigest()
                     v2_manifest["files"]["p1-fig-1.md"] = [[h_v2, h_v2]]
-                    (vault_dir / ".cedalion-cards").write_text(json.dumps(v2_manifest))
+                    (vault_dir / ".cedalion-cards").write_text(json.dumps(v2_manifest), encoding="utf-8")
                     (vault_dir / "personal.md").write_text("My personal note.\n")
                     (box.target / "untracked.txt").write_text("user file in clone\n")
 
@@ -771,12 +788,13 @@ class UpgradeAndSafety(unittest.TestCase):
                     local_notes.unlink()
 
                     # 2. Local edit to a tracked file stops the update before any change.
-                    (box.target / "SKILL.md").write_text("# Edited locally\n")
+                    saved_skill = (box.target / "SKILL.md").read_bytes()
+                    (box.target / "SKILL.md").write_bytes(b"# Edited locally\n")
                     before_dirty = box.snap()
                     rc, out = box.run(shell, scrapbook=True)
                     self.assertEqual(rc, 1, out)
                     self.assertEqual(box.snap(), before_dirty, out)
-                    (box.target / "SKILL.md").write_text("# Cedalion\n")
+                    (box.target / "SKILL.md").write_bytes(saved_skill)
 
                     # 3. If pixi install --locked fails after the clone was updated to N, a rerun recovers the environment.
                     pixi_bin = box.root / "stub" / ("pixi.cmd" if WINDOWS else "pixi")

@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Cedalion",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Send selected Zotero items to a local Cedalion repository.",
   "applications": {
     "zotero": {

@@ -33,7 +33,7 @@ set -eu
 
 # The release this installer belongs to, and installs. install/test_install.py keeps it equal to the
 # version in zotero-plugin/addon/manifest.json, which the release workflow checks against the tag.
-RELEASE=v0.1.0
+RELEASE=v0.1.1
 
 # The whole installer is one function, called on the last line: a download cut short before that line
 # never runs a command.
