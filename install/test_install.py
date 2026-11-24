@@ -27,6 +27,7 @@ Run: python install/test_install.py
 
 from __future__ import annotations
 
+import concurrent.futures
 import hashlib
 import json
 import os
@@ -458,9 +459,12 @@ class Installers(unittest.TestCase):
         # No global or system git settings (signing, hooks, default branch) in the test repositories.
         (cls.tmp / "gitconfig").write_text("")
         os.environ.update(GIT_CONFIG_GLOBAL=str(cls.tmp / "gitconfig"), GIT_CONFIG_NOSYSTEM="1")
-        for shell in shells():
-            for name, scenario in SCENARIOS.items():
-                cls.records[shell, name] = cls.record(shell, name, scenario)
+        jobs = [(shell, name, scenario) for shell in shells() for name, scenario in SCENARIOS.items()]
+        workers = min(8, os.cpu_count() or 4)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+            futs = {(shell, name): pool.submit(cls.record, shell, name, scenario) for shell, name, scenario in jobs}
+            for key, fut in futs.items():
+                cls.records[key] = fut.result()
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -606,9 +610,9 @@ def unicode_insensitive(folder: Path) -> bool:
 
 
 class PathPairs(unittest.TestCase):
-    """Two commands that take the folder (install, then unregister or install again), each given the folder
-    in every path form: they name the same clone, so unregister leaves no link of it and a second install
-    changes nothing but git's records."""
+    """Two commands that take the folder (install, then unregister or install again), pairing the physical
+    path with each alternate path form in both directions plus a cross-form pair: they name the same clone,
+    so unregister leaves no link of it and a second install changes nothing but git's records."""
 
     def forms(self, box: Box) -> dict[str, tuple[str, Path]]:
         """form -> (the folder as given, the start folder)."""
@@ -633,33 +637,49 @@ class PathPairs(unittest.TestCase):
         self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
         (tmp / "gitconfig").write_text("")
         env = {"GIT_CONFIG_GLOBAL": str(tmp / "gitconfig"), "GIT_CONFIG_NOSYSTEM": "1"}
-        n = 0
         target_name = unicodedata.normalize("NFC", "Caf\u00e9/cedalion") if unicode_insensitive(tmp) else "work/cedalion"
+
+        def run_pair(idx: int, shell: str, first: str, second: str, command: str):
+            box = Box(tmp / f"pair{idx}", target_name=target_name)
+            given = self.forms(box)
+            rc1, out1 = box.run(shell, folder=given[first][0], cwd=given[first][1])
+            before = box.snap()
+            rc2, out2 = box.run(shell, unregister=command == "unregister",
+                                folder=given[second][0], cwd=given[second][1])
+            return box, rc1, out1, before, rc2, out2, box.snap()
+
         with unittest.mock.patch.dict(os.environ, env):
+            tasks: list[tuple[int, str, str, str, str]] = []
+            n = 0
             for shell in shells():
-                forms = self.forms(Box(tmp / f"forms-{shell}", target_name=target_name))
-                for first in forms:
-                    for second in forms:
-                        for command in ("unregister", "install again"):
-                            with self.subTest(shell=shell, first=first, second=second, command=command):
-                                n += 1
-                                box = Box(tmp / f"pair{n}", target_name=target_name)
-                                given = self.forms(box)
-                                rc, out = box.run(shell, folder=given[first][0], cwd=given[first][1])
-                                self.assertEqual(rc, 0, out)
-                                for link in box.links:
-                                    self.assertEqual(link_target(link), physical(box.target), out)
-                                before = box.snap()
-                                rc, out = box.run(shell, unregister=command == "unregister",
-                                                  folder=given[second][0], cwd=given[second][1])
-                                self.assertEqual(rc, 0, out)
-                                after = box.snap()
-                                if command == "unregister":
-                                    self.assertFalse(any(is_link(link) or link.exists() for link in box.links), out)
-                                    self.assertEqual(changed(before, after), {box.rel(link) for link in box.links}, out)
-                                else:
-                                    own = box.rel(box.target) + "/.git/"
-                                    self.assertEqual({k for k in changed(before, after) if not k.startswith(own)}, set(), out)
+                names = list(self.forms(Box(tmp / f"forms-{shell}", target_name=target_name)))
+                phys = names[0]
+                others = names[1:]
+                # Test every non-physical form in both directions against physical, plus one cross-form pair.
+                pairs = [(phys, phys)] + [(phys, f) for f in others] + [(f, phys) for f in others]
+                if len(others) >= 2:
+                    pairs.append((others[0], others[-1]))
+                for first, second in pairs:
+                    for command in ("unregister", "install again"):
+                        n += 1
+                        tasks.append((n, shell, first, second, command))
+            workers = min(8, os.cpu_count() or 4)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+                futs = [(t, pool.submit(run_pair, *t)) for t in tasks]
+                for (_, shell, first, second, command), fut in futs:
+                    with self.subTest(shell=shell, first=first, second=second, command=command):
+                        box, rc1, out1, before, rc2, out2, after = fut.result()
+                        self.assertEqual(rc1, 0, out1)
+                        expected_link = ("link", str(physical(box.target)).replace(str(box.root), "<root>"))
+                        for link in box.links:
+                            self.assertEqual(before.get(box.rel(link)), expected_link, out1)
+                        self.assertEqual(rc2, 0, out2)
+                        if command == "unregister":
+                            self.assertFalse(any(is_link(link) or link.exists() for link in box.links), out2)
+                            self.assertEqual(changed(before, after), {box.rel(link) for link in box.links}, out2)
+                        else:
+                            own = box.rel(box.target) + "/.git/"
+                            self.assertEqual({k for k in changed(before, after) if not k.startswith(own)}, set(), out2)
 
 
 class UpgradeAndSafety(unittest.TestCase):

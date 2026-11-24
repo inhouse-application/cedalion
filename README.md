@@ -5,6 +5,33 @@
 Tools and plotting snippets for people and coding agents who draw scientific figures, used with a scrapbook of the non-text parts of published papers (figures, tables, media).
 Each object in the scrapbook is captured with its source and license and is described plainly. Plotting snippets for elements that recur are kept here.
 
+## Installing
+
+Run the command for your system to install or update Cedalion.
+
+**macOS / Linux**
+
+```sh
+bash -o pipefail -c 'curl -fsSL https://github.com/inhouse-application/cedalion/releases/latest/download/install.sh | sh'
+```
+
+**Windows (PowerShell)**
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -c "irm -UseBasicParsing -ErrorAction Stop https://github.com/inhouse-application/cedalion/releases/latest/download/install.ps1 | iex"
+```
+
+Lab members using the private scrapbook: [Connect `orion`](docs/integrations.md#connect-orion).
+
+<details>
+<summary>Install options</summary>
+
+- **Default folder**: `~/cedalion` (macOS/Linux) or `%USERPROFILE%\cedalion` (Windows). Set `CEDALION_INSTALL_DIR` (or pass a folder path to the script) to choose another folder.
+- **Unregister skill links**: run `install.sh --unregister [folder]` or `install.ps1 -Unregister [folder]`.
+- **macOS without Command Line Tools**: run `xcode-select --install` first.
+
+</details>
+
 ## About the name
 
 **The myth.** The giant hunter Orion was blinded and told that the rays of the rising sun would restore his sight.
@@ -64,19 +91,6 @@ python tools/render_snippets.py    # run every snippet and refresh its PNG
 Snippets use `styles/default.mplstyle` at 183 mm. To preview all snippets in a separate folder, run
 `pixi run render-snippets --style elsevier --width 190 --out /tmp/cedalion-preview` from the repository root.
 For a single `snippet.py`, set `CEDALION_STYLE` to a sheet name in `styles/` or a file path and `CEDALION_WIDTH_MM` to the finished width in millimeters.
-
-## Installing
-
-Run the installer for your system: `install.sh` (macOS, Linux) or `install.ps1` (Windows 10/11, Home or later), attached to each release and kept in `install/`. It installs what is missing (pixi; on Windows also git, through winget for the current user), clones the release it came with, installs the environment from `pixi.toml` and runs `pixi run check`, and registers the clone as the `cedalion` skill for Claude Code and Codex. It needs no administrator rights or Developer Mode; on Windows the skill links are directory junctions. Running it again moves the clone forward to that release, never back. With `--scrapbook` (`-Scrapbook`) it also clones the scrapbook repository (`CEDALION_INSTALL_SCRAPBOOK_REPO`) into the folder `orion` beside the clone and writes its path in `.cedalion-scrapbook`; without access to it, the installer says so and installs the tools alone. A folder, clone, scrapbook or skill path that is not the installer's own is left as it is.
-
-| System | Run | Default folder |
-|---|---|---|
-| macOS, Linux | `curl -fsSL https://github.com/inhouse-application/cedalion/releases/latest/download/install.sh \| sh`, or `sh install.sh [--scrapbook] [folder]` | `~/cedalion` |
-| Windows | `powershell -ExecutionPolicy ByPass -c "irm https://github.com/inhouse-application/cedalion/releases/latest/download/install.ps1 \| iex"`, or `powershell -ExecutionPolicy ByPass -File install.ps1 [-Scrapbook] [folder]` | `%USERPROFILE%\cedalion` |
-
-Through a pipe, give the options as environment variables: `CEDALION_INSTALL_DIR` for the folder and `CEDALION_INSTALL_SCRAPBOOK=1`. `CEDALION_INSTALL_REF=main` installs the newest commit instead of the release tag. `--unregister` (`-Unregister`) `[folder]` removes the skill links. On macOS without the Command Line Tools, run `xcode-select --install` first. The scrapbook repository is private: ask the owner for access. `install/test_install.py` checks both installers against the same rules.
-
-The `plugin` environment adds Node.js for `zotero-plugin/`, and the `pdf` environment adds JDK 21 for the PDFFigures2 caption locator. For Tolaria cards, run `git config core.hooksPath "$PWD/tools/git-hooks"` here and in the scrapbook clone; the hooks then rewrite the card vault at `$CEDALION_VAULT` (default `~/Vaults/cedalion`) after each commit, merge, pull or checkout (see [`docs/integrations.md`](docs/integrations.md)).
 
 ## PDF captions
 

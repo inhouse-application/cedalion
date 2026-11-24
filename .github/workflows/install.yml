@@ -64,9 +64,12 @@ jobs:
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
 
       # With the Python of the environment just installed, through the pixi the installer used: one already
-      # on PATH, else the one it installed into ~/.pixi/bin.
-      - name: Check the installer rules on every shell found
+      # on PATH, else the one it installed into ~/.pixi/bin. Test each OS's native shell(s) so macOS does
+      # not repeat Windows PowerShell runs that windows-latest already tests natively.
+      - name: Check the installer rules on native shell(s)
         shell: bash
+        env:
+          CEDALION_TEST_SHELLS: ${{ runner.os == 'Windows' && 'powershell,pwsh' || 'sh' }}
         run: |
           pixi=$(command -v pixi || echo "$HOME/.pixi/bin/pixi")
           "$pixi" run --manifest-path "$RUNNER_TEMP/cedalion/pixi.toml" python "$GITHUB_WORKSPACE/install/test_install.py"

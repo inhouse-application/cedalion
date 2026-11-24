@@ -1,6 +1,22 @@
 # Integrations
 
-How Cedalion connects to Zotero and to Tolaria.
+How Cedalion connects to the private scrapbook (`orion`), Zotero, and Tolaria.
+
+## Connect orion
+
+Requires access to the private `orion` repository. Use the same command for a fresh install or to connect `orion` to an existing Cedalion installation:
+
+**macOS / Linux**
+
+```sh
+bash -o pipefail -c 'curl -fsSL https://github.com/inhouse-application/cedalion/releases/latest/download/install.sh | sh -s -- --scrapbook'
+```
+
+**Windows (PowerShell)**
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -c "& ([scriptblock]::Create((irm -UseBasicParsing -ErrorAction Stop https://github.com/inhouse-application/cedalion/releases/latest/download/install.ps1))) -Scrapbook"
+```
 
 ## Zotero
 
