@@ -61,26 +61,12 @@ jobs:
             echo "::error::Release tags start with v and a digit and hold only letters, digits, dots and hyphens: '$TAG'"
             exit 1
           fi
-          if ! info=$(gh release view "$TAG" --repo "$REPO" --json isDraft,body); then
-            echo "::error::No release has the tag $TAG"
-            exit 1
-          fi
-          draft=$(jq -r .isDraft <<< "$info")
-          body=$(jq -r .body <<< "$info")
-          if [ "$EVENT" = release ] && [ "$draft" != false ]; then
-            echo "::error::The release $TAG is a draft; dispatch this workflow manually to attach assets to a draft, or publish it first"
-            exit 1
-          fi
-          if ! grep -qiE '^#+[[:space:]]*(What to do when updating|Updating|업데이트할 때 할 일)([[:space:]]|$)' <<< "$body"; then
-            echo "::error::The release notes for $TAG must have a heading '## What to do when updating' (or '## 업데이트할 때 할 일')"
-            exit 1
-          fi
           sha=$(gh api "repos/$REPO/commits/refs%2Ftags%2F$TAG" --jq .sha)
           if [ "$EVENT" = release ] && [ "$sha" != "$EVENT_SHA" ]; then
             echo "::error::The tag $TAG now points at $sha, not at $EVENT_SHA as when the release was published"
             exit 1
           fi
-          echo "$TAG is $sha (draft=$draft)"
+          echo "$TAG is $sha"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
 
@@ -254,6 +240,8 @@ jobs:
 
       - name: Attach the assets that the release does not have yet
         working-directory: release-assets
+        env:
+          EVENT: ${{ github.event_name }}
         run: |
           set -euo pipefail
           now=$(gh api "repos/$REPO/commits/refs%2Ftags%2F$TAG" --jq .sha)
@@ -261,7 +249,22 @@ jobs:
             echo "::error::The tag $TAG moved from $SHA to $now during this run; nothing was attached"
             exit 1
           fi
-          attached=$(gh release view "$TAG" --repo "$REPO" --json assets --jq '.assets[].name')
+          # Draft releases are visible only with contents: write, so release existence and notes are verified here.
+          if ! info=$(gh release view "$TAG" --repo "$REPO" --json isDraft,body,assets); then
+            echo "::error::No release has the tag $TAG"
+            exit 1
+          fi
+          draft=$(jq -r .isDraft <<< "$info")
+          body=$(jq -r .body <<< "$info")
+          if [ "$EVENT" = release ] && [ "$draft" != false ]; then
+            echo "::error::The release $TAG is a draft; dispatch this workflow manually to attach assets to a draft, or publish it first"
+            exit 1
+          fi
+          if ! grep -qiE '^#+[[:space:]]*(What to do when updating|Updating|업데이트할 때 할 일)([[:space:]]|$)' <<< "$body"; then
+            echo "::error::The release notes for $TAG must have a heading '## What to do when updating' (or '## 업데이트할 때 할 일')"
+            exit 1
+          fi
+          attached=$(jq -r '.assets[].name' <<< "$info")
           while IFS= read -r name; do
             if [ -n "$name" ] && ! grep -qxF -- "$name" <<< "$ASSETS"; then
               echo "::error::The release $TAG already has an asset this workflow does not make: $name"
