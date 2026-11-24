@@ -1,0 +1,146 @@
+{
+  "_note": "Synthetic: an invented paper in the shape of a Zotero local API export ('item' and each 'children' entry are API 'data' objects, as Zotero.Item.toJSON() returns them; 'links' is the API 'links' object). Keys, DOIs, URLs and paths are made up; <credential>, <path> and <url> stand for removed values.",
+  "item": {
+    "key": "ITEM0002",
+    "version": 1,
+    "itemType": "journalArticle",
+    "title": "Same block layout, different afternoon temperatures: thresholds across eight synthetic cities",
+    "date": "2026-10-01",
+    "DOI": "10.5555/synth.0002",
+    "citationKey": "roeSameBlockLayout2026",
+    "url": "https://journal.example.org/articles/synth-0002",
+    "accessDate": "2026-09-13T11:54:58Z",
+    "shortTitle": "Same block layout",
+    "libraryCatalog": "Example Library",
+    "volume": "149",
+    "pages": "107738",
+    "publicationTitle": "Synthetic Cities and Society",
+    "ISSN": "0000-0002",
+    "journalAbbreviation": "Synthetic Cities and Society",
+    "creators": [
+      {
+        "firstName": "Dana",
+        "lastName": "Roe",
+        "creatorType": "author"
+      },
+      {
+        "firstName": "Eli",
+        "lastName": "Doe",
+        "creatorType": "author"
+      },
+      {
+        "firstName": "Fay",
+        "lastName": "Moe",
+        "creatorType": "author"
+      }
+    ],
+    "tags": [
+      {
+        "tag": "notion"
+      },
+      {
+        "tag": "Land surface temperature",
+        "type": 1
+      },
+      {
+        "tag": "Urban form",
+        "type": 1
+      }
+    ],
+    "collections": [
+      "COLL0001",
+      "COLL0002"
+    ],
+    "relations": {},
+    "dateAdded": "2026-09-13T11:54:58Z",
+    "dateModified": "2026-09-13T11:55:20Z"
+  },
+  "children": [
+    {
+      "key": "ATCH0201",
+      "version": 1,
+      "itemType": "attachment",
+      "title": "Notion",
+      "url": "notion://<url>",
+      "accessDate": "2026-09-13T11:55:20Z",
+      "parentItem": "ITEM0002",
+      "linkMode": "linked_url",
+      "contentType": "",
+      "charset": "",
+      "note": "",
+      "tags": [],
+      "relations": {},
+      "dateAdded": "2026-09-13T11:55:20Z",
+      "dateModified": "2026-09-13T11:55:20Z",
+      "links": {
+        "self": {
+          "href": "http://localhost:23119/api/users/0/items/ATCH0201",
+          "type": "application/json"
+        },
+        "up": {
+          "href": "http://localhost:23119/api/users/0/items/ITEM0002",
+          "type": "application/json"
+        }
+      }
+    },
+    {
+      "key": "ATCH0202",
+      "version": 1,
+      "itemType": "attachment",
+      "title": "Example Full Text PDF",
+      "url": "https://pdf.example.org/1-s2.0-SYNTH0002/main.pdf?X-Amz-Security-Token=<credential>&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=<credential>&X-Amz-Credential=<credential>&X-Amz-Signature=<credential>&tid=<credential>&sid=<credential>&type=client",
+      "accessDate": "2026-09-13T11:55:08Z",
+      "parentItem": "ITEM0002",
+      "linkMode": "imported_url",
+      "contentType": "application/pdf",
+      "charset": "",
+      "filename": "Roe et al. - 2026 - Same block layout.pdf",
+      "tags": [],
+      "relations": {},
+      "dateAdded": "2026-09-13T11:55:08Z",
+      "dateModified": "2026-09-13T11:55:08Z",
+      "links": {
+        "self": {
+          "href": "http://localhost:23119/api/users/0/items/ATCH0202",
+          "type": "application/json"
+        },
+        "up": {
+          "href": "http://localhost:23119/api/users/0/items/ITEM0002",
+          "type": "application/json"
+        },
+        "enclosure": {
+          "href": "file:///<path>/Roe et al. - 2026 - Same block layout.pdf",
+          "type": "application/pdf",
+          "title": "Roe et al. - 2026 - Same block layout.pdf"
+        }
+      }
+    },
+    {
+      "key": "ATCH0203",
+      "version": 1,
+      "itemType": "attachment",
+      "title": "Example Snapshot",
+      "url": "https://journal.example.org/articles/synth-0002",
+      "accessDate": "2026-09-13T11:55:05Z",
+      "parentItem": "ITEM0002",
+      "linkMode": "imported_url",
+      "contentType": "text/html",
+      "charset": "utf-8",
+      "filename": "synth-0002.html",
+      "tags": [],
+      "relations": {},
+      "dateAdded": "2026-09-13T11:55:05Z",
+      "dateModified": "2026-09-13T11:55:05Z",
+      "links": {
+        "self": {
+          "href": "http://localhost:23119/api/users/0/items/ATCH0203",
+          "type": "application/json"
+        },
+        "up": {
+          "href": "http://localhost:23119/api/users/0/items/ITEM0002",
+          "type": "application/json"
+        }
+      }
+    }
+  ]
+}

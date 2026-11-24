@@ -1,0 +1,6 @@
+# Written by tools/tokens.py from styles/cedalion.tokens.json; edit the tokens, not this file.
+# A frame marks the extent of each map panel and its insets.
+axes.spines.left: True
+axes.spines.right: True
+axes.spines.top: True
+axes.spines.bottom: True

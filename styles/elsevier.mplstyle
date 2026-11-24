@@ -1,0 +1,11 @@
+# Written by tools/tokens.py from styles/cedalion.tokens.json; edit the tokens, not this file.
+# Elsevier artwork sizes (artwork and media instructions, accessed 2026-11-19).
+# Normal text at its finished size: 7 pt (https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-sizing).
+font.size: 7
+# Ordinary line work 0.25 pt, prominent plot lines about 1 pt (https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-faq).
+axes.linewidth: 0.25
+xtick.major.width: 0.25
+ytick.major.width: 0.25
+grid.linewidth: 0.25
+patch.linewidth: 0.25
+lines.linewidth: 1

@@ -1,0 +1,309 @@
+# Attach install/install.sh, install/install.ps1, the Zotero plugin (cedalion.xpi), its Zotero
+# update manifest (updates.json) and SHA256SUMS to a published release of this repository, built
+# from the release tag's commit only.
+#
+# Invariants:
+# - Input is the tag's commit of this repository and the locked dependencies (pixi.lock,
+#   zotero-plugin/package-lock.json); no caches, no secrets, no other repositories.
+# - Output is exactly those five files, attached to that release; an asset already attached
+#   is left as it is and must equal the new one.
+# - Nothing is uploaded unless the build and the installer tests on all three systems passed
+#   and the tag still points at the commit they used.
+# - Only the upload job can write, and it runs no repository code.
+# - Assumed, not checked here: release tags cannot be moved, deleted or made again (a tag protection
+#   rule on GitHub). The jobs check the tag's commit before uploading; a tag moved during the upload
+#   would not be seen.
+
+name: release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag of a published release (for example v0.1.0) to build and attach the assets to
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: release-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  resolve:
+    name: Find the release commit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+      sha: ${{ steps.tag.outputs.sha }}
+    steps:
+      - name: Find the commit of the release tag
+        id: tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          IS_PRIVATE: ${{ github.event.repository.private }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+          EVENT: ${{ github.event_name }}
+          EVENT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$IS_PRIVATE" = true ]; then
+            echo "::error::Refusing to publish public release assets from private repository $REPO"
+            exit 1
+          fi
+          if ! [[ "$TAG" =~ ^v[0-9][0-9A-Za-z.-]*$ ]]; then
+            echo "::error::Release tags start with v and a digit and hold only letters, digits, dots and hyphens: '$TAG'"
+            exit 1
+          fi
+          if ! info=$(gh release view "$TAG" --repo "$REPO" --json isDraft,body); then
+            echo "::error::No release has the tag $TAG"
+            exit 1
+          fi
+          draft=$(jq -r .isDraft <<< "$info")
+          body=$(jq -r .body <<< "$info")
+          if [ "$EVENT" = release ] && [ "$draft" != false ]; then
+            echo "::error::The release $TAG is a draft; dispatch this workflow manually to attach assets to a draft, or publish it first"
+            exit 1
+          fi
+          if ! grep -qiE '^#+[[:space:]]*(What to do when updating|Updating|업데이트할 때 할 일)([[:space:]]|$)' <<< "$body"; then
+            echo "::error::The release notes for $TAG must have a heading '## What to do when updating' (or '## 업데이트할 때 할 일')"
+            exit 1
+          fi
+          sha=$(gh api "repos/$REPO/commits/refs%2Ftags%2F$TAG" --jq .sha)
+          if [ "$EVENT" = release ] && [ "$sha" != "$EVENT_SHA" ]; then
+            echo "::error::The tag $TAG now points at $sha, not at $EVENT_SHA as when the release was published"
+            exit 1
+          fi
+          echo "$TAG is $sha (draft=$draft)"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build the assets
+    needs: resolve
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.resolve.outputs.sha }}
+          persist-credentials: false
+
+      - uses: prefix-dev/setup-pixi@9936258fee697aff89b3fed6ca1f80a382ef694e # v0.11.3
+        with:
+          pixi-version: v0.80.0
+          environments: plugin
+          locked: true
+          cache: false
+
+      - name: Check that the plugin and installer versions match the tag
+        env:
+          TAG: ${{ needs.resolve.outputs.tag }}
+        run: |
+          set -euo pipefail
+          manifest=$(jq -r .version zotero-plugin/addon/manifest.json)
+          package=$(jq -r .version zotero-plugin/package.json)
+          sh_rel=$(sed -n 's/^RELEASE=//p' install/install.sh)
+          ps_rel=$(sed -n "s/^\$CedalionRelease = '\(.*\)'$/\1/p" install/install.ps1)
+          if [ "v$manifest" != "$TAG" ] || [ "$package" != "$manifest" ] || [ "$sh_rel" != "$TAG" ] || [ "$ps_rel" != "$TAG" ]; then
+            echo "::error::Tag $TAG, manifest.json $manifest, package.json $package, install.sh $sh_rel, install.ps1 $ps_rel: all must give the same version"
+            exit 1
+          fi
+
+      - name: Install the locked plugin dependencies
+        run: pixi run --locked -e plugin npm --prefix zotero-plugin ci --ignore-scripts --no-audit --no-fund
+
+      - name: Run the plugin tests
+        run: pixi run --locked -e plugin npm --prefix zotero-plugin test
+
+      - name: Build the plugin
+        run: pixi run --locked -e plugin npm --prefix zotero-plugin run build
+
+      - name: Collect the assets and write updates.json and SHA256SUMS
+        env:
+          REPO: ${{ github.repository }}
+          TAG: ${{ needs.resolve.outputs.tag }}
+        run: |
+          set -euo pipefail
+          mkdir release-assets
+          cp zotero-plugin/dist/cedalion.xpi install/install.ps1 install/install.sh release-assets/
+          addon_id=$(jq -r .applications.zotero.id zotero-plugin/addon/manifest.json)
+          version=$(jq -r .version zotero-plugin/addon/manifest.json)
+          min_ver=$(jq -r .applications.zotero.strict_min_version zotero-plugin/addon/manifest.json)
+          max_ver=$(jq -r .applications.zotero.strict_max_version zotero-plugin/addon/manifest.json)
+          cd release-assets
+          xpi_sha=$(sha256sum cedalion.xpi | awk '{print $1}')
+          jq -n \
+            --arg id "$addon_id" \
+            --arg version "$version" \
+            --arg link "https://github.com/$REPO/releases/download/$TAG/cedalion.xpi" \
+            --arg hash "sha256:$xpi_sha" \
+            --arg min_ver "$min_ver" \
+            --arg max_ver "$max_ver" \
+            '{
+              addons: {
+                ($id): {
+                  updates: [
+                    {
+                      version: $version,
+                      update_link: $link,
+                      update_hash: $hash,
+                      applications: {
+                        zotero: {
+                          strict_min_version: $min_ver,
+                          strict_max_version: $max_ver
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }' > updates.json
+          sha256sum cedalion.xpi install.ps1 install.sh updates.json > SHA256SUMS
+          cat SHA256SUMS
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-assets
+          path: release-assets/
+          if-no-files-found: error
+          retention-days: 7
+
+  install:
+    name: Test the installers
+    needs: resolve
+    permissions:
+      contents: read
+    uses: ./.github/workflows/install.yml
+    with:
+      ref: ${{ needs.resolve.outputs.sha }}
+
+  upload:
+    name: Attach the assets to the release
+    needs: [resolve, build, install]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      TAG: ${{ needs.resolve.outputs.tag }}
+      SHA: ${{ needs.resolve.outputs.sha }}
+      ASSETS: |-
+        SHA256SUMS
+        cedalion.xpi
+        install.ps1
+        install.sh
+        updates.json
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-assets
+          path: release-assets
+
+      - name: Check the assets against SHA256SUMS and updates.json
+        working-directory: release-assets
+        run: |
+          set -euo pipefail
+          if [ "$(LC_ALL=C ls -A)" != "$ASSETS" ]; then
+            echo "::error::The build gave other files than the five assets:"
+            LC_ALL=C ls -A
+            exit 1
+          fi
+          if [ "$(cut -c67- SHA256SUMS)" != "$(sed 1d <<< "$ASSETS")" ]; then
+            echo "::error::SHA256SUMS does not list exactly the other four assets"
+            exit 1
+          fi
+          sha256sum --check --strict SHA256SUMS
+          xpi_sha=$(sha256sum cedalion.xpi | awk '{print $1}')
+          xpi_manifest=$(unzip -p cedalion.xpi manifest.json)
+          xpi_id=$(jq -r .applications.zotero.id <<< "$xpi_manifest")
+          xpi_ver=$(jq -r .version <<< "$xpi_manifest")
+          xpi_url=$(jq -r .applications.zotero.update_url <<< "$xpi_manifest")
+          xpi_min=$(jq -r .applications.zotero.strict_min_version <<< "$xpi_manifest")
+          xpi_max=$(jq -r .applications.zotero.strict_max_version <<< "$xpi_manifest")
+          if [ "$xpi_id" != "cedalion@cedalion.local" ] || [ "$xpi_ver" != "${TAG#v}" ] ||
+             [ "$xpi_url" != "https://github.com/$REPO/releases/latest/download/updates.json" ]; then
+            echo "::error::cedalion.xpi manifest.json does not match $REPO $TAG (id=$xpi_id version=$xpi_ver update_url=$xpi_url)"
+            exit 1
+          fi
+          jq -e \
+            --arg id "$xpi_id" \
+            --arg version "$xpi_ver" \
+            --arg min_ver "$xpi_min" \
+            --arg max_ver "$xpi_max" \
+            --arg link "https://github.com/$REPO/releases/download/$TAG/cedalion.xpi" \
+            --arg hash "sha256:$xpi_sha" \
+            '(.addons | keys) == [$id]
+             and (.addons[$id].updates | length) == 1
+             and .addons[$id].updates[0].version == $version
+             and .addons[$id].updates[0].update_link == $link
+             and .addons[$id].updates[0].update_hash == $hash
+             and .addons[$id].updates[0].applications.zotero.strict_min_version == $min_ver
+             and .addons[$id].updates[0].applications.zotero.strict_max_version == $max_ver
+             and ($min_ver | type == "string" and length > 0)
+             and ($max_ver | type == "string" and length > 0)' \
+            updates.json > /dev/null
+
+      - name: Attach the assets that the release does not have yet
+        working-directory: release-assets
+        run: |
+          set -euo pipefail
+          now=$(gh api "repos/$REPO/commits/refs%2Ftags%2F$TAG" --jq .sha)
+          if [ "$now" != "$SHA" ]; then
+            echo "::error::The tag $TAG moved from $SHA to $now during this run; nothing was attached"
+            exit 1
+          fi
+          attached=$(gh release view "$TAG" --repo "$REPO" --json assets --jq '.assets[].name')
+          while IFS= read -r name; do
+            if [ -n "$name" ] && ! grep -qxF -- "$name" <<< "$ASSETS"; then
+              echo "::error::The release $TAG already has an asset this workflow does not make: $name"
+              exit 1
+            fi
+          done <<< "$attached"
+          published=$(mktemp -d)
+          # First verify EVERY already-attached asset matches before uploading any missing asset.
+          while IFS= read -r name; do
+            if [ -n "$name" ] && grep -qxF -- "$name" <<< "$attached"; then
+              gh release download "$TAG" --repo "$REPO" --pattern "$name" --dir "$published"
+              if ! cmp -s "$name" "$published/$name"; then
+                echo "::error::The release $TAG already has a different $name; nothing was attached"
+                exit 1
+              fi
+              echo "$name is already attached and equal"
+            fi
+          done <<< "$ASSETS"
+          # Upload payload assets first, then updates.json (once cedalion.xpi is live), then SHA256SUMS last.
+          for group in "cedalion.xpi install.ps1 install.sh" "updates.json" "SHA256SUMS"; do
+            missing=()
+            for name in $group; do
+              if ! grep -qxF -- "$name" <<< "$attached"; then
+                missing+=("$name")
+              fi
+            done
+            if [ "${#missing[@]}" -gt 0 ]; then
+              gh release upload "$TAG" --repo "$REPO" "${missing[@]}"
+            fi
+          done
+
+      - name: Check the attached assets
+        working-directory: release-assets
+        run: |
+          set -euo pipefail
+          check=$(mktemp -d)
+          gh release download "$TAG" --repo "$REPO" --dir "$check"
+          cmp SHA256SUMS "$check/SHA256SUMS"
+          cd "$check"
+          if [ "$(LC_ALL=C ls -A)" != "$ASSETS" ]; then
+            echo "::error::The release $TAG has other assets than the five:"
+            LC_ALL=C ls -A
+            exit 1
+          fi
+          sha256sum --check --strict SHA256SUMS

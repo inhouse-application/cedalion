@@ -1,0 +1,7 @@
+# Role of the object in its paper's argument. Level 2; needs a text location.
+overview: Introduces the study as a whole (study area, data, design at a glance).
+study-design: Shows how the analysis is set up (workflow, sampling, model structure).
+main-result: Carries a headline result stated in the abstract or results.
+mechanism: Explains why a result occurs (drivers, attribution, decomposition).
+robustness: Shows the result holds under alternatives (sensitivity, validation).
+supplementary: Appears only in supplementary material.

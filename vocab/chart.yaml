@@ -1,0 +1,134 @@
+# Plot types, assigned per panel. Add a term here before using it.
+# Each term has the common name shown to people and a one-line definition.
+choropleth:
+  name: Choropleth map
+  definition: Areas filled by value.
+point-map:
+  name: Point map
+  definition: Points on a map, value by color or size.
+raster-map:
+  name: Raster map
+  definition: Gridded field on a map.
+flow-map:
+  name: Flow map
+  definition: Lines or arrows between places.
+scatter:
+  name: Scatter plot
+  definition: Two continuous variables as points.
+hexbin:
+  name: Hexbin plot
+  definition: Point density in hexagonal bins.
+line:
+  name: Line chart
+  definition: Values over an ordered axis.
+area:
+  name: Area chart
+  definition: Filled line, stacked or single.
+bar:
+  name: Bar chart
+  definition: Bars by category.
+stacked-bar:
+  name: Stacked bar chart
+  definition: Bars split into parts (absolute or 100%).
+dot:
+  name: Dot plot
+  definition: Points by category (dot plot, Cleveland dot plot).
+lollipop:
+  name: Lollipop chart
+  definition: Dot plot with stems from a baseline.
+dumbbell:
+  name: Dumbbell plot
+  definition: Two values per category joined by a line.
+slope:
+  name: Slope chart
+  definition: Two time points joined by lines.
+boxplot:
+  name: Box plot
+  definition: Quartiles and whiskers.
+violin:
+  name: Violin plot
+  definition: Kernel density by category.
+beeswarm:
+  name: Beeswarm plot
+  definition: Non-overlapping points by category.
+histogram:
+  name: Histogram
+  definition: Binned counts.
+density:
+  name: Density plot
+  definition: Smoothed distribution curve.
+ecdf:
+  name: ECDF plot
+  definition: Empirical cumulative distribution.
+heatmap:
+  name: Heatmap
+  definition: Matrix of cells by value.
+ridgeline:
+  name: Ridgeline plot
+  definition: Stacked density curves.
+radar:
+  name: Radar chart
+  definition: Values on radial axes.
+polar:
+  name: Polar plot
+  definition: Values on a circular axis (e.g. month or hour of day).
+sankey:
+  name: Sankey diagram
+  definition: Flows between stages as bands.
+network:
+  name: Network graph
+  definition: Nodes and edges.
+tree:
+  name: Tree diagram
+  definition: Hierarchy as nodes and edges.
+partial-dependence:
+  name: Partial dependence plot
+  definition: Model response along one or two predictors.
+image:
+  name: Photograph or image
+  definition: Photograph or satellite image without a data encoding.
+schematic:
+  name: Schematic diagram
+  definition: Diagram of a process, model or design.
+3d-view:
+  name: 3-D view
+  definition: Perspective view of a 3-D scene such as a point cloud or surface, optionally colored by value.
+table-graphic:
+  name: Table as a graphic
+  definition: Table drawn as a graphic.
+radial-bar:
+  name: Radial bar chart
+  definition: Bars drawn as arcs on concentric rings.
+diverging-bar:
+  name: Diverging bar chart
+  definition: Bars extending both ways from a shared zero line (back-to-back or butterfly chart).
+raincloud:
+  name: Raincloud plot
+  definition: Half-violin, box plot and raw points per category.
+path-diagram:
+  name: Path diagram
+  definition: Variables as boxes joined by arrows labeled with coefficients (path or SEM model).
+donut:
+  name: Donut chart
+  definition: Parts of a whole as segments of a ring.
+connected-scatter:
+  name: Connected scatter plot
+  definition: Points in a two-variable plane joined in sequence order (e.g. time).
+strip:
+  name: Strip plot
+  definition: Jittered points by category, often over a box plot.
+reference-map:
+  name: Reference map
+  definition: Outline map showing places or regions without a data encoding.
+grouped-boxplot:
+  name: Grouped box plot
+  definition: Box plots of several series side by side at each category position.
+circle-matrix:
+  name: Circle matrix
+  definition: Matrix of circles colored or sized by value (e.g. correlations).
+grouped-bar:
+  name: Grouped bar chart
+  definition: Bars for several series placed side by side within each category.
+contour:
+  name: Contour plot
+  definition: Lines of equal value drawn over a two-dimensional field, often with value labels.

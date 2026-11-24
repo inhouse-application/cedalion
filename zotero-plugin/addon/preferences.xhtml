@@ -1,0 +1,9 @@
+<vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml">
+  <html:label for="cedalion-repository-path">Repository folder</html:label>
+  <hbox align="center">
+    <html:input id="cedalion-repository-path" type="text" readonly="readonly"
+                preference="extensions.zotero.cedalion.repositoryPath" flex="1"/>
+    <button label="Choose folder…" oncommand="window.chooseCedalionRepository()"/>
+  </hbox>
+</vbox>

@@ -1,0 +1,10 @@
+# papers/<citationKey>/context.yaml — Level 2, paper-level 5W2H.
+# Every value cites where it is stated (loc). Write "not stated" when the paper does not say.
+question: {text: , loc: }              # Why
+method:   {text: , loc: }              # What (analysis)
+data:                                  # What (data); Zotero dataset field names
+  - {title: , repository: , versionNumber: , DOI: , loc: }
+region:   {text: , loc: }              # Where
+period:   {start_datetime: , end_datetime: , loc: }   # When (data); STAC field names
+n:        {text: , loc: }              # How much
+software: {text: not stated, loc: }    # How (tools)

@@ -1,0 +1,10 @@
+# Kinds of non-text objects. Names are JATS element names (JATS Tag Library 1.4),
+# so a scrap's kind matches how publishers tag the same object in article XML.
+fig: Figure. One image with a label and caption.
+fig-group: Group of figures sharing one label (e.g. Fig. 2 made of separately numbered parts).
+table-wrap: Table with its label, caption and footnotes.
+disp-formula: Displayed equation.
+media: Video, audio or animation.
+supplementary-material: Supplementary file (data, extended figures, code archive).
+boxed-text: Box or sidebar set apart from the main text.
+graphical-abstract: Graphical abstract. Not a JATS element; JATS tags it as <abstract abstract-type="graphical">.

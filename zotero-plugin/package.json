@@ -1,0 +1,13 @@
+{
+  "name": "cedalion-zotero",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "python build.py",
+    "test": "node --test \"test/**/*.test.cjs\"",
+    "test:e2e": "node test/e2e.cjs"
+  },
+  "dependencies": {
+    "js-yaml": "4.3.2"
+  }
+}

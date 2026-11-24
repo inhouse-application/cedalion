@@ -1,0 +1,12 @@
+# Written by tools/tokens.py from styles/cedalion.tokens.json; edit the tokens, not this file.
+axes.spines.top: False
+axes.spines.right: False
+axes.prop_cycle: cycler(color='petroff10')
+font.size: 6
+font.family: sans-serif
+axes.titlesize: 7
+axes.linewidth: 0.5
+xtick.major.size: 2
+xtick.major.width: 0.5
+ytick.major.size: 2
+ytick.major.width: 0.5

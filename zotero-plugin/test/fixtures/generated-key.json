@@ -1,0 +1,90 @@
+{
+  "_note": "Synthetic: an invented paper in the shape of a Zotero local API export ('item' and each 'children' entry are API 'data' objects, as Zotero.Item.toJSON() returns them; 'links' is the API 'links' object). Keys, DOIs, URLs and paths are made up; <credential>, <path> and <url> stand for removed values.",
+  "item": {
+    "key": "ITEM0004",
+    "version": 1,
+    "itemType": "journalArticle",
+    "title": "Synthetic gridded counts systematically misplace rural households",
+    "abstractNote": "",
+    "date": "2025-03-18",
+    "DOI": "10.5555/synth.0001",
+    "citationKey": "",
+    "url": "https://journal.example.org/articles/synth-0001",
+    "accessDate": "",
+    "language": "en",
+    "libraryCatalog": "journal.example.org",
+    "rights": "2025 The Author(s)",
+    "volume": "16",
+    "publisher": "Example Press",
+    "pages": "2170",
+    "publicationTitle": "Journal of Synthetic Examples",
+    "ISSN": "0000-0001",
+    "issue": "1",
+    "journalAbbreviation": "J Synth Ex",
+    "creators": [
+      {
+        "firstName": "Åsa",
+        "lastName": "Ödegaard-Núñez",
+        "creatorType": "author"
+      },
+      {
+        "firstName": "Ben",
+        "lastName": "Placeholder",
+        "creatorType": "author"
+      },
+      {
+        "firstName": "Cleo",
+        "lastName": "Sample",
+        "creatorType": "author"
+      }
+    ],
+    "tags": [
+      {
+        "tag": "population"
+      },
+      {
+        "tag": "Geography"
+      },
+      {
+        "tag": "notion",
+        "type": 1
+      }
+    ],
+    "collections": [
+      "COLL0001"
+    ],
+    "relations": {},
+    "dateAdded": "2026-02-07T07:11:48Z",
+    "dateModified": "2026-02-17T00:53:01Z",
+    "extra": "PMCID: PMC0000001\nSome other note: x"
+  },
+  "children": [
+    {
+      "key": "ATCH0401",
+      "version": 1,
+      "itemType": "attachment",
+      "title": "Notion",
+      "url": "notion://<url>",
+      "accessDate": "2026-02-07T17:50:25Z",
+      "parentItem": "ITEM0004",
+      "linkMode": "linked_url",
+      "contentType": "",
+      "charset": "",
+      "note": "",
+      "tags": [],
+      "relations": {},
+      "dateAdded": "2026-02-07T17:50:25Z",
+      "dateModified": "2026-02-07T17:50:25Z",
+      "links": {
+        "self": {
+          "href": "http://localhost:23119/api/users/0/items/ATCH0401",
+          "type": "application/json"
+        },
+        "up": {
+          "href": "http://localhost:23119/api/users/0/items/ITEM0004",
+          "type": "application/json"
+        }
+      }
+    }
+  ]
+}

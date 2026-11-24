@@ -1,0 +1,40 @@
+[workspace]
+name = "cedalion"
+channels = ["conda-forge"]
+platforms = ["osx-arm64", "linux-64", "win-64"]
+
+# Repository tools and snippets (README, Requirements).
+[dependencies]
+python = "3.12.*"
+pyyaml = "*"
+pillow = "*"
+matplotlib-base = ">=3.11"  # color sequence names (okabe_ito, petroff6/8) and named cycles in sheets
+numpy = "*"
+pymupdf = "*"
+cmcrameri = ">=1.10,<2"
+colorspacious = ">=1.1.2,<2"
+
+# Tools read and write UTF-8 (author names, Greek letters); Windows would otherwise use its locale code page.
+[activation.env]
+PYTHONUTF8 = "1"
+
+[tasks]
+check = "python tools/check.py"
+check-contribution = "python tools/check_contribution.py"
+render-snippets = "python tools/render_snippets.py"
+cards = "python tools/cards.py"
+archive-import = "python tools/archive_import.py"
+helios = "python tools/helios.py"
+tokens = "python tools/tokens.py"
+
+# Zotero plugin build and tests (zotero-plugin/).
+[feature.plugin.dependencies]
+nodejs = "22.*"
+
+# PDFFigures2 caption locator (tools/bench/install_java.py builds it with JDK 21).
+[feature.pdf.dependencies]
+openjdk = "21.*"
+
+[environments]
+plugin = ["plugin"]
+pdf = ["pdf"]

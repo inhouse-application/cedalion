@@ -1,0 +1,99 @@
+{
+  "_note": "Synthetic: an invented paper in the shape of a Zotero local API export ('item' and each 'children' entry are API 'data' objects, as Zotero.Item.toJSON() returns them; 'links' is the API 'links' object). Keys, DOIs, URLs and paths are made up; <credential>, <path> and <url> stand for removed values.",
+  "item": {
+    "key": "ITEM0003",
+    "version": 1,
+    "itemType": "journalArticle",
+    "title": "Seamless Global Mapping of a Synthetic Trace Gas via Spectral Retrieval and Neural Operator",
+    "date": "2026-03-16",
+    "DOI": "10.5555/synth.0003",
+    "citationKey": "xuSeamlessGlobalMapping2026",
+    "url": "https://journal.example.org/doi/full/10.5555/synth.0003",
+    "accessDate": "2026-09-13T14:51:08Z",
+    "libraryCatalog": "journal.example.org (Atypon)",
+    "volume": "6",
+    "pages": "1043",
+    "publicationTitle": "Journal of Synthetic Sensing",
+    "creators": [
+      {
+        "firstName": "Gus",
+        "lastName": "Xu",
+        "creatorType": "author"
+      },
+      {
+        "firstName": "Hana",
+        "lastName": "Ho",
+        "creatorType": "author"
+      },
+      {
+        "firstName": "Ivo",
+        "lastName": "Hu",
+        "creatorType": "author"
+      },
+      {
+        "firstName": "Jun",
+        "lastName": "Li",
+        "creatorType": "author"
+      },
+      {
+        "firstName": "Kai",
+        "lastName": "Su",
+        "creatorType": "author"
+      },
+      {
+        "firstName": "Lea",
+        "lastName": "Lin",
+        "creatorType": "author"
+      },
+      {
+        "firstName": "Mia",
+        "lastName": "Zhang",
+        "creatorType": "author"
+      },
+      {
+        "firstName": "Ned",
+        "lastName": "Liu",
+        "creatorType": "author"
+      }
+    ],
+    "tags": [],
+    "collections": [],
+    "relations": {},
+    "dateAdded": "2026-09-13T14:51:08Z",
+    "dateModified": "2026-09-13T14:51:31Z"
+  },
+  "children": [
+    {
+      "key": "ATCH0301",
+      "version": 1,
+      "itemType": "attachment",
+      "title": "Full Text PDF",
+      "url": "https://journal.example.org/doi/pdf/10.5555/synth.0003?utm_source=example",
+      "accessDate": "2026-09-13T14:51:31Z",
+      "parentItem": "ITEM0003",
+      "linkMode": "imported_url",
+      "contentType": "application/pdf",
+      "charset": "",
+      "filename": "Xu et al. - 2026 - Seamless Global Mapping.pdf",
+      "tags": [],
+      "relations": {},
+      "dateAdded": "2026-09-13T14:51:31Z",
+      "dateModified": "2026-09-13T14:51:31Z",
+      "links": {
+        "self": {
+          "href": "http://localhost:23119/api/users/0/items/ATCH0301",
+          "type": "application/json"
+        },
+        "up": {
+          "href": "http://localhost:23119/api/users/0/items/ITEM0003",
+          "type": "application/json"
+        },
+        "enclosure": {
+          "href": "file:///<path>/Xu et al. - 2026 - Seamless Global Mapping.pdf",
+          "type": "application/pdf",
+          "title": "Xu et al. - 2026 - Seamless Global Mapping.pdf"
+        }
+      }
+    }
+  ]
+}

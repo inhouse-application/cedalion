@@ -1,0 +1,72 @@
+# Run install/install.sh and install/install.ps1 on Linux, macOS and Windows against one commit of
+# this repository: a real install from the checked-out tree, which installs pixi and the environment,
+# and a second run over it; then the rules in install/test_install.py, offline, on every shell found
+# (sh, pwsh, and Windows PowerShell 5.1). No other repositories, no secrets, read-only.
+# release.yml calls it with the release tag's commit.
+
+name: install
+
+on:
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      ref:
+        description: Commit to test (empty for the commit of the event)
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  install:
+    name: Installers on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      GIT_TERMINAL_PROMPT: '0'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+          fetch-depth: 0
+
+      # The installers clone a branch or tag; the checked-out commit gets a branch name of its own.
+      - name: Name the commit for the installers
+        run: git branch ci-install HEAD
+
+      - name: Install from this tree with sh, then run again
+        if: runner.os != 'Windows'
+        env:
+          CEDALION_INSTALL_REF: ci-install
+        run: |
+          export CEDALION_INSTALL_REPO="$GITHUB_WORKSPACE"
+          sh install/install.sh "$RUNNER_TEMP/cedalion"
+          sh install/install.sh "$RUNNER_TEMP/cedalion"
+
+      - name: Install from this tree with Windows PowerShell 5.1, then run again piped through iex in PowerShell 7
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          CEDALION_INSTALL_REF: ci-install
+        run: |
+          $env:CEDALION_INSTALL_REPO = $env:GITHUB_WORKSPACE
+          powershell -NoProfile -ExecutionPolicy Bypass -File install/install.ps1 "$env:RUNNER_TEMP\cedalion"
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $env:CEDALION_INSTALL_DIR = "$env:RUNNER_TEMP\cedalion"
+          pwsh -NoProfile -Command 'Get-Content -Raw install/install.ps1 | Invoke-Expression; exit $LASTEXITCODE'
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+
+      # With the Python of the environment just installed, through the pixi the installer used: one already
+      # on PATH, else the one it installed into ~/.pixi/bin.
+      - name: Check the installer rules on every shell found
+        shell: bash
+        run: |
+          pixi=$(command -v pixi || echo "$HOME/.pixi/bin/pixi")
+          "$pixi" run --manifest-path "$RUNNER_TEMP/cedalion/pixi.toml" python "$GITHUB_WORKSPACE/install/test_install.py"

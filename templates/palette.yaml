@@ -1,0 +1,18 @@
+# scraps/<citationKey>/<slug>/palette.yaml — colors as drawn in files[0] (optional at every level).
+# Fill `at` by looking at the image, then run `python tools/palettes.py <this file>` to fill `hex`.
+palettes:
+  - title:               # legend or color-bar title as printed; "not printed" if there is none
+    type:                # categorical | sequential | diverging | cyclic
+    panels: []           # panel ids from object.yaml that use these colors
+    # bar: [[x, y], [x, y]]  # optional, color bars: pixels at the low and high ends of the bar
+    # colormap:          # optional: named scheme the keys match — matplotlib (incl. ColorBrewer, viridis, tab10, okabe_ito),
+    #                    # Crameri "cmc.<name>" or "ggplot2:hue"; python tools/palettes.py lists the closest. Leave it out
+    #                    # when nothing is within tolerance (colors chosen by the authors) or the palette is grays only.
+    # steps:             # optional, with colormap: the scheme was cut into this many colors and each key has a `step`
+    #                    # (0 = low end); only when another legend of the paper uses that cut whole
+    #                    # (python tools/palettes.py --subsets scraps/<citationKey> finds and, with --apply, records them)
+    colors:
+      # One key per color: what it stands for, as printed.
+      - {label: , hex: , at: [x, y]}         # legend entry: its text; add size: 1 or 3 for marks narrower than 5 px
+      # - {range: [low, high], hex: , at: [x, y]}   # class of a discrete color bar, between printed ticks (null if a bound is unprinted); list classes from the low end
+      # - {value: , hex: , at: [x, y]}              # continuous color bar at a printed tick

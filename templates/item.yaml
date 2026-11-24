@@ -1,0 +1,24 @@
+# papers/<citationKey>/item.yaml — one paper. Field names follow the Zotero schema (journalArticle).
+# Zotero is the source of truth; tools/add_scrap.py fills this from Crossref until a Zotero export replaces it.
+itemType: journalArticle
+citationKey:
+title:
+creators:
+  - {creatorType: author, firstName: , lastName: }
+publicationTitle:
+journalAbbreviation:
+volume:
+issue:
+pages:
+date:                    # ISO 8601
+DOI:
+ISSN:
+PMID:
+PMCID:
+url:
+language:
+rights:                  # license statement or URL as published
+accessDate:
+libraryCatalog:
+tags:                    # Zotero tag objects; values from vocab/domain.yaml
+  - {tag: }

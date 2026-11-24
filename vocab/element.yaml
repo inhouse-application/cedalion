@@ -1,0 +1,137 @@
+# Elements inside a panel that are reusable as techniques. Snippets are keyed by these terms.
+# Each term has the common name shown to people and a one-line definition.
+inset-zoom:
+  name: Zoom inset
+  definition: Detail inset of a region shown in a larger view, with an outline and connectors.
+locator-map:
+  name: Locator map
+  definition: Small map showing where the main map is.
+scale-bar:
+  name: Scale bar
+  definition: Distance scale on a map.
+north-arrow:
+  name: North arrow
+  definition: North indicator on a map.
+graticule:
+  name: Graticule
+  definition: Latitude and longitude lines.
+shared-colorbar:
+  name: Shared color bar
+  definition: One color bar used by several panels.
+discrete-colorbar:
+  name: Discrete color bar
+  definition: Color bar with class breaks.
+diverging-colormap:
+  name: Diverging color scale
+  definition: Color scale centered on a reference value.
+bivariate-colormap:
+  name: Bivariate color scale
+  definition: Two variables in one color (2-D legend).
+panel-labels:
+  name: Panel labels
+  definition: Letters marking panels (a, b, c).
+small-multiples:
+  name: Small multiples
+  definition: Repeated panels with the same encoding.
+marginal-distribution:
+  name: Marginal distribution
+  definition: Distribution plotted along an axis of the main panel.
+group-bracket:
+  name: Group bracket
+  definition: Bracket or band labeling a group of categories.
+reference-line:
+  name: Reference line
+  definition: Line at a reference value (zero, mean, 1:1).
+fit-line:
+  name: Fitted line
+  definition: Fitted line or curve with or without its band.
+ci-band:
+  name: Confidence band
+  definition: Shaded uncertainty band.
+error-bar:
+  name: Error bars
+  definition: Uncertainty bars on points or bars.
+highlight:
+  name: Highlighting
+  definition: One series or region emphasized against muted others.
+direct-labels:
+  name: Direct labels
+  definition: Series labeled at the data instead of in a legend.
+annotation-callout:
+  name: Callout annotation
+  definition: Text with a leader line pointing at data.
+significance-marker:
+  name: Significance marker
+  definition: Stars or letters marking statistical tests.
+broken-axis:
+  name: Broken axis
+  definition: Axis with a gap.
+dual-axis:
+  name: Dual y-axis
+  definition: Two y-axes in one panel.
+log-axis:
+  name: Log axis
+  definition: Logarithmic axis.
+latitude-profile:
+  name: Latitude profile
+  definition: Values summarized along latitude beside a map.
+reference-band:
+  name: Reference band
+  definition: Shaded region marking a value range or class threshold.
+line-band:
+  name: Band around a line
+  definition: Shaded band around a line whose meaning the figure does not print (use ci-band when it is stated).
+value-labels:
+  name: Data labels
+  definition: Numeric values printed at bars, segments, cells or points.
+point-labels:
+  name: Point labels
+  definition: Individual points labeled with text or numerals.
+shared-legend:
+  name: Shared legend
+  definition: One categorical legend used by several panels.
+inset-map:
+  name: Inset map
+  definition: Separate small framed map (e.g. outlying territory) without connectors to the main map.
+size-legend:
+  name: Size legend
+  definition: Legend of representative marker sizes for a value encoded by marker area.
+nested-bars:
+  name: Bar-in-bar chart
+  definition: Bar-in-bar chart, a narrower bar for a part drawn over the bar for its total.
+facet-grid:
+  name: Facet grid
+  definition: Panels arranged by two categorical variables, with column titles and row strip labels.
+lightness-encoding:
+  name: Hue and lightness encoding
+  definition: A second category shown as lighter or darker shades (or opacity) of each hue.
+inset-chart:
+  name: Inset chart
+  definition: Small chart with its own axes drawn inside another panel's plot area.
+hatched-fill:
+  name: Hatched fill
+  definition: Hatching that marks areas without data or a separate class.
+ring-marker:
+  name: Ring marker
+  definition: Points meeting a stated condition drawn with a contrasting ring and keyed in a legend.
+colorbar-extend:
+  name: Color bar extensions
+  definition: Color bar with triangular (extend) ends for values beyond its range.
+colorbar:
+  name: Color bar
+  definition: Strip of colors with tick labels that maps colors to values for one panel.
+sequential-colormap:
+  name: Sequential color scale
+  definition: Color scale that changes in one direction (usually light to dark) for values from low to high.
+rug-plot:
+  name: Rug plot
+  definition: Short ticks along an axis, one per observation.
+ice-curves:
+  name: ICE curves
+  definition: Individual conditional expectation curves; one thin line per observation showing the prediction as one feature varies.
+basemap:
+  name: Basemap
+  definition: Background map layer, such as land, coastlines or borders, drawn under the data.
+no-data:
+  name: No-data color
+  definition: Neutral fill, often gray, for areas or cells without a value.

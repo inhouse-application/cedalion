@@ -1,0 +1,30 @@
+#!/bin/sh
+# Regenerate the Tolaria card vault after the working tree changes (tools/cards.py).
+# The vault is $CEDALION_VAULT, else ~/Vaults/cedalion; nothing happens if it does not exist.
+# Runs only in the main working tree: a linked worktree (e.g. an old commit checked out for
+# review) would otherwise overwrite the vault with that commit's cards.
+# The tools are found from this script's folder. Run in another clone (the scrapbook), the hook
+# builds from that clone; cards.py refuses one without scraps/ or another vault's scrapbook.
+# The hook only reads sources: archive marks set in Tolaria are copied back by archive-import.
+# Never blocks git: a failure only prints a hint.
+[ "$(git rev-parse --git-dir)" = "$(git rev-parse --git-common-dir)" ] || exit 0
+vault="${CEDALION_VAULT:-$HOME/Vaults/cedalion}"
+[ -d "$vault" ] || exit 0
+command -v pixi >/dev/null 2>&1 || PATH="$HOME/.pixi/bin:$PATH"
+root="$(cd "$(dirname "$0")/../.." && pwd -P)"
+top="$(cd "$(git rev-parse --show-toplevel)" && pwd -P)"
+if [ "$top" = "$root" ]; then
+    if out=$(pixi run --manifest-path "$root/pixi.toml" cards --vault "$vault" 2>&1); then
+        printf '%s\n' "$out" | grep -E 'archive-import|--sync-from-book' || true
+        exit 0
+    fi
+    book=""
+else
+    if out=$(pixi run --manifest-path "$root/pixi.toml" cards --vault "$vault" --scrapbook "$top" 2>&1); then
+        printf '%s\n' "$out" | grep -E 'archive-import|--sync-from-book' || true
+        exit 0
+    fi
+    book=" --scrapbook \"$top\""
+fi
+echo "cedalion: card refresh failed; run: pixi run --manifest-path \"$root/pixi.toml\" cards --vault \"$vault\"$book" >&2
+exit 0

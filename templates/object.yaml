@@ -1,0 +1,25 @@
+# scraps/<citationKey>/<slug>/object.yaml — identity, provenance and structure of one non-text object.
+# Level 0
+kind:                    # vocab/kind.yaml
+label:                   # as printed, e.g. "Fig. 3"
+label_source:            # jats | filename | anchor | pdf (printed caption label, e.g. "Figure S16" in a supplement)
+paper:                   # citationKey
+url:                     # page showing the object
+contentUrl:              # file that was downloaded
+accessDate:              # ISO 8601
+rights:                  # SPDX id (CC-BY-4.0), LicenseRef-publisher, or NOASSERTION
+files:
+  - {path: , sha256: , width: , height: , source_sha256: }
+caption_source:          # {type: jats, id: PMC…, element: Fig3}
+                         # | {type: pdf, file, sha256, page, version: vor|accepted-manuscript|preprint, url} | null
+# Level 1
+layout: {panels: , grid: }   # grid as rows x columns, e.g. "2x3"; "irregular" if not a grid
+panels:
+  - id:                  # panel letter as printed; "-" if unlabeled
+    chart: []            # vocab/chart.yaml
+    element: []          # vocab/element.yaml
+    xywh:                # optional: x,y,w,h in pixels of files[0]
+regions:                 # optional: where an element sits, to highlight it in examples
+  - term:                # a chart or element term used by a panel
+    xywh:                # x, y, w, h in pixels of files[0]
+archived:                # optional; true once archived in Tolaria (tools/archive_import.py writes it)

@@ -1,0 +1,3 @@
+# scraps/<citationKey>/<slug>/context.yaml — Level 2, object-level.
+role:                                  # vocab/role.yaml
+claim: {quote: "", loc: }              # the authors' own sentence, verbatim

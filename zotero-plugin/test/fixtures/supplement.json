@@ -1,0 +1,56 @@
+{
+  "_note": "Synthetic: an invented paper in the shape of a Zotero local API export ('item' and each 'children' entry are API 'data' objects, as Zotero.Item.toJSON() returns them; 'links' is the API 'links' object). Keys, DOIs, URLs and paths are made up; <credential>, <path> and <url> stand for removed values.",
+  "item": {
+    "key": "ITEM0005",
+    "itemType": "journalArticle",
+    "title": "How well do synthetic models simulate streamflow extremes and drought-to-flood transitions?",
+    "date": "2026-02-12",
+    "DOI": "10.5555/synth.0005",
+    "citationKey": "munozHowWellSynthetic2026",
+    "url": "https://journal.example.org/articles/synth-0005/",
+    "accessDate": "2026-11-20T00:00:00Z",
+    "language": "English",
+    "libraryCatalog": "Example Online Journals",
+    "volume": "30",
+    "pages": "825-848",
+    "publicationTitle": "Synthetic Hydrology",
+    "ISSN": "0000-0005",
+    "issue": "3",
+    "creators": [
+      {
+        "firstName": "Eva",
+        "lastName": "Muñoz",
+        "creatorType": "author"
+      },
+      {
+        "firstName": "Finn",
+        "lastName": "Anders",
+        "creatorType": "author"
+      }
+    ],
+    "tags": []
+  },
+  "children": [
+    {
+      "key": "ATCH0501",
+      "itemType": "attachment",
+      "title": "Full Text PDF",
+      "url": "https://journal.example.org/articles/synth-0005/synth-0005.pdf",
+      "parentItem": "ITEM0005",
+      "linkMode": "imported_url",
+      "contentType": "application/pdf",
+      "filename": "Muñoz and Anders - 2026 - How well do synthetic models simulate streamflow extremes.pdf",
+      "dateAdded": "2026-11-20T01:00:00Z"
+    },
+    {
+      "key": "ATCH0502",
+      "itemType": "attachment",
+      "title": "synth-0005-supplement",
+      "parentItem": "ITEM0005",
+      "linkMode": "imported_file",
+      "contentType": "application/pdf",
+      "filename": "synth-0005-supplement.pdf",
+      "dateAdded": "2026-11-20T01:05:00Z"
+    }
+  ]
+}
